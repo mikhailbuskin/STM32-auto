@@ -327,12 +327,27 @@ void loop() {
     if (channel_6 < 1900)previous_channel_6 = 0;
   }
 
+  /*
+  channel_1 = 1500; //Roll
+  channel_2 = 1500; //Pitch
+  channel_3 = 1000; //Throttle
+  channel_4 = 1500; //Yaw
+  channel_5 =
+  1000 - flight_mode 1 - autolevel
+  1500 - flight_mode 2 - autolevel + altitude hold
+  2000 - flight_mode 3 - autolevel + altitude hold + GPS position hold
+  channel_6 = heading_lock
+  */
+
   heading_lock = 0;
   if (channel_6 > 1200)heading_lock = 1;                                           //If channel 6 is between 1200us and 1600us the flight mode is 2
 
-  flight_mode = 1;                                                                 //In all other situations the flight mode is 1;
+  flight_mode = 1;
+  /*                                                                 //In all other situations the flight mode is 1;
+  CHANGE mode to 2 or 3 disabled
   if (channel_5 >= 1200 && channel_5 < 1600)flight_mode = 2;                       //If channel 6 is between 1200us and 1600us the flight mode is 2
   if (channel_5 >= 1600 && channel_5 < 2100)flight_mode = 3;                       //If channel 6 is between 1600us and 1900us the flight mode is 3
+  */
 
   flight_mode_signal();                                                            //Show the flight_mode via the green LED.
   error_signal();                                                                  //Show the error via the red LED.
