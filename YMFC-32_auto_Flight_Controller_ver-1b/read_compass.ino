@@ -1,5 +1,10 @@
 
 void read_compass() {
+
+  // TODO: commented compass
+  actual_compass_heading = 0;
+  return;
+
   HWire.beginTransmission(compass_address);                     //Start communication with the compass.
   HWire.write(0x03);                                            //We want to start reading at the hexadecimal location 0x03.
   HWire.endTransmission();                                      //End the transmission with the gyro.
@@ -38,6 +43,8 @@ void read_compass() {
 
 //At startup the registers of the compass need to be set. After that the calibration offset and scale values are calculated.
 void setup_compass() {
+  // TODO: commented compass
+  return;
   HWire.beginTransmission(compass_address);                     //Start communication with the compass.
   HWire.write(0x00);                                            //We want to write to the Configuration Register A (00 hex).
   HWire.write(0x78);                                            //Set the Configuration Regiser A bits as 01111000 to set sample rate (average of 8 at 75Hz).

@@ -1,6 +1,15 @@
 void read_barometer(void) {
-  barometer_counter ++;
+  // TODO: changed barometer
+  // commenting out
+  pid_altitude_setpoint = 0;                                                     //Reset the PID altitude setpoint.
+  pid_output_altitude = 0;                                                       //Reset the output of the PID controller.
+  pid_i_mem_altitude = 0;                                                        //Reset the I-controller.
+  manual_throttle = 0;                                                           //Set the manual_throttle variable to 0 .
+  manual_altitude_change = 1;                                                    //Set the manual_altitude_change to 1.
+  return;
+  // ==============================================================
 
+  barometer_counter ++;
   //Every time this function is called the barometer_counter variable is incremented. This way a specific action
   //is executed at the correct moment. This is needed because requesting data from the MS5611 takes around 9ms to complete.
 

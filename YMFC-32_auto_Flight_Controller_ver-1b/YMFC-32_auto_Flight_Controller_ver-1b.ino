@@ -217,6 +217,8 @@ void setup() {
   }
 
   //Check if the compass is responding.
+  /*
+  TODO: compass disabled.
   HWire.beginTransmission(compass_address);                     //Start communication with the HMC5883L.
   error = HWire.endTransmission();                              //End the transmission and register the exit status.
   while (error != 0) {                                          //Stay in this loop because the HMC5883L did not responde.
@@ -224,8 +226,11 @@ void setup() {
     error_signal();                                             //Show the error via the red LED.
     delay(4);                                                   //Simulate a 250Hz refresch rate as like the main loop.
   }
+  */
 
   //Check if the MS5611 barometer is responding.
+  /*
+  TODO: barometer disabled
   HWire.beginTransmission(MS5611_address);                      //Start communication with the MS5611.
   error = HWire.endTransmission();                              //End the transmission and register the exit status.
   while (error != 0) {                                          //Stay in this loop because the MS5611 did not responde.
@@ -233,6 +238,7 @@ void setup() {
     error_signal();                                             //Show the error via the red LED.
     delay(4);                                                   //Simulate a 250Hz refresch rate as like the main loop.
   }
+  */
 
   gyro_setup();                                                 //Initiallize the gyro and set the correct registers.
   setup_compass();                                              //Initiallize the compass and set the correct registers.
@@ -272,6 +278,8 @@ void setup() {
 
   //For calculating the pressure the 6 calibration values need to be polled from the MS5611.
   //These 2 byte values are stored in the memory location 0xA2 and up.
+  /* 
+  TODO: disabled barometer
   for (start = 1; start <= 6; start++) {
     HWire.beginTransmission(MS5611_address);                    //Start communication with the MPU-6050.
     HWire.write(0xA0 + start * 2);                              //Send the address that we want to read.
@@ -283,7 +291,8 @@ void setup() {
 
   OFF_C2 = C[2] * pow(2, 16);                                   //This value is pre-calculated to offload the main program loop.
   SENS_C1 = C[1] * pow(2, 15);                                  //This value is pre-calculated to offload the main program loop.
-
+  */
+ 
   //The MS5611 needs a few readings to stabilize.
   for (start = 0; start < 100; start++) {                       //This loop runs 100 times.
     read_barometer();                                           //Read and calculate the barometer data.
@@ -340,7 +349,8 @@ void loop() {
   */
 
   heading_lock = 0;
-  if (channel_6 > 1200)heading_lock = 1;                                           //If channel 6 is between 1200us and 1600us the flight mode is 2
+  // TODO: commented HEAD lock
+  //if (channel_6 > 1200)heading_lock = 1;                                           //If channel 6 is between 1200us and 1600us the flight mode is 2
 
   flight_mode = 1;
   /*                                                                 //In all other situations the flight mode is 1;
