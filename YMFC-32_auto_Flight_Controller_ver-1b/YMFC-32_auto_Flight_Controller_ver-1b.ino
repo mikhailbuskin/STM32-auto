@@ -177,14 +177,14 @@ float adjustable_setting_1, adjustable_setting_2, adjustable_setting_3;
 //Setup routine
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void setup() {
-  pinMode(4, INPUT_ANALOG);                                     //This is needed for reading the analog value of port A4.
+  pinMode(4, INPUT_ANALOG);                                     //This is needed for reading the analog value of port A4 (battery).
   //Port PB3 and PB4 are used as JTDO and JNTRST by default.
   //The following function connects PB3 and PB4 to the
   //alternate output function.
   afio_cfg_debug_ports(AFIO_DEBUG_SW_ONLY);                     //Connects PB3 and PB4 to output function.
 
-  pinMode(PB3, OUTPUT);                                         //Set PB3 as output for green LED.
-  pinMode(PB4, OUTPUT);                                         //Set PB4 as output for red LED.
+  pinMode(PB1, OUTPUT);                                         //Set PB3 as output for green LED.
+  pinMode(PB0, OUTPUT);                                         //Set PB4 as output for red LED.
   pinMode(STM32_board_LED, OUTPUT);                             //This is the LED on the STM32 board. Used for GPS indication.
   digitalWrite(STM32_board_LED, HIGH);                          //Turn the LED on the STM32 off. The LED function is inverted. Check the STM32 schematic.
 
