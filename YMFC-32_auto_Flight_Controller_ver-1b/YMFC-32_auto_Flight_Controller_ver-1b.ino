@@ -328,10 +328,10 @@ void loop() {
   }
 
   /*
-  channel_1 = 1500; //Roll
-  channel_2 = 1500; //Pitch
-  channel_3 = 1000; //Throttle
-  channel_4 = 1500; //Yaw
+  channel_1 = 1000-2000; //Roll
+  channel_2 = 1000-2000; //Pitch
+  channel_3 = 1000-2000; //Throttle
+  channel_4 = 1000-2000; //Yaw
   channel_5 =
   1000 - flight_mode 1 - autolevel
   1500 - flight_mode 2 - autolevel + altitude hold
