@@ -71,7 +71,7 @@ void setup() {
   else flip32 = 0;
   flip32 = 0;
 
-  pinMode(PB3, OUTPUT);                                         //Set PB3 as output.
+  pinMode(PB1, OUTPUT);                                         //Set PB3 as output.
   pinMode(PB4, OUTPUT);                                         //Set PB4 as output.
 
   green_led(LOW);                                               //Set output PB3 low.
@@ -257,6 +257,6 @@ void gyro_signalen(void) {
   }
   void green_led(int8_t level) {
     if (flip32)digitalWrite(PB3, !level);
-    else digitalWrite(PB3, level);
+    else digitalWrite(PB1, level);
   }
 

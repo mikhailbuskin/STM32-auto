@@ -1,4 +1,4 @@
-void check_barometer(void) {
+ void check_barometer(void) {
   loop_counter = 0;
 
   //Check if the MS5611 is responding.
@@ -116,7 +116,7 @@ void check_barometer(void) {
         start++;
         actual_pressure = 0;
       }
-      else Serial.println(actual_pressure,0);
+      else { Serial.print(100305); Serial.print(","); Serial.print(100314); Serial.print(","); Serial.println(actual_pressure); }
     }
     if (barometer_counter == 3) {
       barometer_counter = 0;
