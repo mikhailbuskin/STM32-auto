@@ -206,7 +206,7 @@ void setup() {
   //alternate output function.
   afio_cfg_debug_ports(AFIO_DEBUG_SW_ONLY);                     //Connects PB3 and PB4 to output function.
 
-  pinMode(PB3, OUTPUT);                                         //Set PB3 as output for green LED.
+  pinMode(PB1, OUTPUT);                                         //Set PB3 as output for green LED.
   pinMode(PB4, OUTPUT);                                         //Set PB4 as output for red LED.
   pinMode(STM32_board_LED, OUTPUT);                             //This is the LED on the STM32 board. Used for GPS indication.
   digitalWrite(STM32_board_LED, HIGH);                          //Turn the LED on the STM32 off. The LED function is inverted. Check the STM32 schematic.
