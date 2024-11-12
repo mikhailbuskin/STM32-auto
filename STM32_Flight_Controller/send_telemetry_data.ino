@@ -10,7 +10,7 @@ void send_telemetry_data(void) {
     check_byte = 0;
     telemetry_send_byte = error;                              //Send the error as a byte.
   }
-  if (telemetry_loop_counter == 4)telemetry_send_byte = flight_mode;                        //Send the flight mode as a byte.
+  if (telemetry_loop_counter == 4)telemetry_send_byte = flight_mode + return_to_home_step + waypoint_monitor;                       //Send the flight mode as a byte.
   if (telemetry_loop_counter == 5)telemetry_send_byte = battery_voltage * 10;               //Send the battery voltage as a byte.
   if (telemetry_loop_counter == 6) {
     telemetry_buffer_byte = temperature;                                                    //Store the temperature as it can change during the next loop.
@@ -22,7 +22,7 @@ void send_telemetry_data(void) {
   if (telemetry_loop_counter == 10)telemetry_send_byte = start;                             //Send the error as a byte.
   if (telemetry_loop_counter == 11) {
     if (start == 2) {                                                                       //Only send the altitude when the quadcopter is flying.
-      telemetry_buffer_byte = 1000 + ((ground_pressure - actual_pressure) * 0.0842);        //Calculate the altitude and add 1000 to prevent negative numbers.
+      telemetry_buffer_byte = 1000 + ((float)(ground_pressure - actual_pressure) * 0.117);  //Calculate the altitude and add 1000 to prevent negative numbers.
     }
     else {
       telemetry_buffer_byte = 1000;                                                         //Send and altitude of 0 meters if the quadcopter isn't flying.
@@ -46,6 +46,9 @@ void send_telemetry_data(void) {
   if (telemetry_loop_counter == 19)telemetry_send_byte = fix_type;                          //Send the fix_type variable as a byte.
   if (telemetry_loop_counter == 20) {
     telemetry_buffer_byte = l_lat_gps;                                                      //Store the latitude position as it can change during the next loop.
+    //if(l_lat_waypoint != 0)telemetry_buffer_byte = l_lat_waypoint;                                                      //Store the latitude position as it can change during the next loop.
+    //else telemetry_buffer_byte = l_lat_gps;                                                      //Store the latitude position as it can change during the next loop.
+
     telemetry_send_byte = telemetry_buffer_byte;                                            //Send the first 8 bytes of the latitude position variable.
   }
   if (telemetry_loop_counter == 21)telemetry_send_byte = telemetry_buffer_byte >> 8;        //Send the next 8 bytes of the latitude position variable.
@@ -53,6 +56,9 @@ void send_telemetry_data(void) {
   if (telemetry_loop_counter == 23)telemetry_send_byte = telemetry_buffer_byte >> 24;       //Send the next 8 bytes of the latitude position variable.
   if (telemetry_loop_counter == 24) {
     telemetry_buffer_byte = l_lon_gps;                                                      //Store the longitude position as it can change during the next loop.
+    //if(l_lon_waypoint != 0)telemetry_buffer_byte = l_lon_waypoint;                                                      //Store the longitude position as it can change during the next loop.
+    //else telemetry_buffer_byte = l_lon_gps;                                                      //Store the longitude position as it can change during the next loop.
+
     telemetry_send_byte = telemetry_buffer_byte;                                            //Send the first 8 bytes of the longitude position variable.
   }
   if (telemetry_loop_counter == 25)telemetry_send_byte = telemetry_buffer_byte >> 8;        //Send the next 8 bytes of the longitude position variable.
@@ -65,12 +71,12 @@ void send_telemetry_data(void) {
   }
   if (telemetry_loop_counter == 29)telemetry_send_byte = telemetry_buffer_byte >> 8;        //Send the next 8 bytes of the adjustable setting 1.
   if (telemetry_loop_counter == 30) {
-    telemetry_buffer_byte = adjustable_setting_2 * 100;                                     //Store the adjustable setting 1 as it can change during the next loop.
+    telemetry_buffer_byte = adjustable_setting_2 * 100;                                     //Store the adjustable setting 2 as it can change during the next loop.
     telemetry_send_byte = telemetry_buffer_byte;                                            //Send the first 8 bytes of the adjustable setting 2.
   }
   if (telemetry_loop_counter == 31)telemetry_send_byte = telemetry_buffer_byte >> 8;        //Send the next 8 bytes of the adjustable setting 2.
   if (telemetry_loop_counter == 32) {
-    telemetry_buffer_byte = adjustable_setting_3 * 100;                                     //Store the adjustable setting 1 as it can change during the next loop.
+    telemetry_buffer_byte = adjustable_setting_3 * 100;                                     //Store the adjustable setting 3 as it can change during the next loop.
     telemetry_send_byte = telemetry_buffer_byte;                                            //Send the first 8 bytes of the adjustable setting 3.
   }
   if (telemetry_loop_counter == 33)telemetry_send_byte = telemetry_buffer_byte >> 8;        //Send the next 8 bytes of the adjustable setting 3.
@@ -87,11 +93,13 @@ void send_telemetry_data(void) {
   if (telemetry_loop_counter <= 34) {
     check_byte ^= telemetry_send_byte;
     GPIOB_BASE->BSRR = 0b1 << 16;                                                             //Reset output PB0 to 0 to create a start bit.
-    delayMicroseconds(104);                                                                   //Delay 104us (1s/9600bps)
+    delay_micros_timer = micros() + 104;
+    while (delay_micros_timer > micros());
     for (telemetry_bit_counter = 0; telemetry_bit_counter < 8; telemetry_bit_counter ++) {    //Create a loop fore every bit in the
       if (telemetry_send_byte >> telemetry_bit_counter & 0b1) GPIOB_BASE->BSRR = 0b1 << 0;    //If the specific bit is set, set output PB0 to 1;
       else GPIOB_BASE->BSRR = 0b1 << 16;                                                      //If the specific bit is not set, reset output PB0 to 0;
-      delayMicroseconds(104);                                                                 //Delay 104us (1s/9600bps)
+      delay_micros_timer = micros() + 104;
+      while (delay_micros_timer > micros());
     }
     //Send a stop bit
     GPIOB_BASE->BSRR = 0b1 << 0;                                                              //Set output PB0 to 1;

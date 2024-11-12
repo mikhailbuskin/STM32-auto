@@ -40,7 +40,7 @@ int pid_max_yaw = 400;                     //Maximum output of the PID-controlle
 //During flight the battery voltage drops and the motors are spinning at a lower RPM. This has a negative effecct on the
 //altitude hold function. With the battery_compensation variable it's possible to compensate for the battery voltage drop.
 //Increase this value when the quadcopter drops due to a lower battery voltage during a non altitude hold flight.
-float battery_compensation = 40.0;         
+float battery_compensation = 40.0;
 
 float pid_p_gain_altitude = 1.4;           //Gain setting for the altitude P-controller (default = 1.4).
 float pid_i_gain_altitude = 0.2;           //Gain setting for the altitude I-controller (default = 0.2).
@@ -52,13 +52,14 @@ float gps_d_gain = 6.5;                    //Gain setting for the GPS D-controll
 
 float declination = 0.0;                   //Set the declination between the magnetic and geographic north.
 
-int16_t manual_takeoff_throttle = 1500;    //Enter the manual hover point when auto take-off detection is not desired (between 1400 and 1600).
+int16_t manual_takeoff_throttle = 0;    //Enter the manual hover point when auto take-off detection is not desired (between 1400 and 1600).
 int16_t motor_idle_speed = 1100;           //Enter the minimum throttle pulse of the motors when they idle (between 1000 and 1200). 1170 for DJI
 
 uint8_t gyro_address = 0x68;               //The I2C address of the MPU-6050 is 0x68 in hexadecimal form.
 uint8_t MS5611_address = 0x77;             //The I2C address of the MS5611 barometer is 0x77 in hexadecimal form.
 uint8_t compass_address = 0x1E;            //The I2C address of the HMC5883L is 0x1E in hexadecimal form.
 
+float battery_voltage_calibration = 0.0;   //Battery voltage offset calibration.
 float low_battery_warning = 10.5;          //Set the battery warning at 10.5V (default = 10.5V).
 
 #define STM32_board_LED PC13               //Change PC13 if the LED on the STM32 is connected to another output.
@@ -92,13 +93,13 @@ int16_t temperature, count_var;
 int16_t acc_x, acc_y, acc_z;
 int16_t gyro_pitch, gyro_roll, gyro_yaw;
 
-int32_t channel_1_start, channel_1, pid_roll_setpoint_base;
-int32_t channel_2_start, channel_2, pid_pitch_setpoint_base;
+int32_t channel_1_start, channel_1, channel_1_base, pid_roll_setpoint_base;
+int32_t channel_2_start, channel_2, channel_2_base, pid_pitch_setpoint_base;
 int32_t channel_3_start, channel_3;
 int32_t channel_4_start, channel_4;
 int32_t channel_5_start, channel_5;
 int32_t channel_6_start, channel_6;
-int32_t measured_time, measured_time_start;
+int32_t measured_time, measured_time_start, receiver_watchdog;
 int32_t acc_total_vector, acc_total_vector_at_start;
 int32_t gyro_roll_cal, gyro_pitch_cal, gyro_yaw_cal;
 int16_t acc_pitch_cal_value;
@@ -112,6 +113,7 @@ uint8_t acc_z_average_short_rotating_mem_location, acc_z_average_long_rotating_m
 int32_t acc_alt_integrated;
 
 uint32_t loop_timer, error_timer, flight_mode_timer;
+uint32_t delay_micros_timer;
 
 float roll_level_adjust, pitch_level_adjust;
 float pid_error_temp;
@@ -139,7 +141,7 @@ uint8_t barometer_counter, temperature_counter, average_temperature_mem_location
 int64_t OFF, OFF_C2, SENS, SENS_C1, P;
 uint32_t raw_pressure, raw_temperature, temp, raw_temperature_rotating_memory[6], raw_average_temperature_total;
 float actual_pressure, actual_pressure_slow, actual_pressure_fast, actual_pressure_diff;
-float ground_pressure, altutude_hold_pressure;
+float ground_pressure, altutude_hold_pressure, return_to_home_decrease;
 int32_t dT, dT_C5;
 //Altitude PID variables
 float pid_i_mem_altitude, pid_altitude_setpoint, pid_altitude_input, pid_output_altitude, pid_last_altitude_d_error;
@@ -160,12 +162,33 @@ int32_t lat_gps_actual, lon_gps_actual, l_lat_waypoint, l_lon_waypoint;
 float gps_pitch_adjust_north, gps_pitch_adjust, gps_roll_adjust_north, gps_roll_adjust;
 float lat_gps_loop_add, lon_gps_loop_add, lat_gps_add, lon_gps_add;
 uint8_t new_line_found, new_gps_data_available, new_gps_data_counter;
-uint8_t gps_rotating_mem_location;
+uint8_t gps_rotating_mem_location, return_to_home_step;
 int32_t gps_lat_total_avarage, gps_lon_total_avarage;
 int32_t gps_lat_rotating_mem[40], gps_lon_rotating_mem[40];
 int32_t gps_lat_error, gps_lon_error;
 int32_t gps_lat_error_previous, gps_lon_error_previous;
 uint32_t gps_watchdog_timer;
+
+float l_lon_gps_float_adjust, l_lat_gps_float_adjust, gps_man_adjust_heading;
+float return_to_home_lat_factor, return_to_home_lon_factor, return_to_home_move_factor;
+uint8_t home_point_recorded;
+int32_t lat_gps_home, lon_gps_home;
+
+//Software Serial data input handling
+uint8_t si_check_byte;
+//uint8_t temp_byte;
+int8_t si_rising_edge_set;
+int16_t si_time_array[200];
+int8_t si_print_flag = 1;
+uint8_t si_time_array_counter, si_time_array_counter_2, si_received_bytes_counter;
+uint8_t si_received_bytes[30], si_level, si_byte_counter, new_waypoint_available;
+int32_t wp_lat_gps, wp_lon_gps;
+int32_t si_measured_time, si_measured_time_start, si_last_input_change, si_last_input_change_previous;
+
+//Fly waypoints
+uint8_t fly_to_new_waypoint, fly_to_new_waypoint_step, waypoint_monitor;
+float fly_to_waypoint_move_factor, fly_to_waypoint_lat_factor, fly_to_waypoint_lon_factor;
+
 
 //Adjust settings online
 uint32_t setting_adjust_timer;
@@ -177,14 +200,14 @@ float adjustable_setting_1, adjustable_setting_2, adjustable_setting_3;
 //Setup routine
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void setup() {
-  pinMode(4, INPUT_ANALOG);                                     //This is needed for reading the analog value of port A4 (battery).
+  pinMode(4, INPUT_ANALOG);                                     //This is needed for reading the analog value of port A4.
   //Port PB3 and PB4 are used as JTDO and JNTRST by default.
   //The following function connects PB3 and PB4 to the
   //alternate output function.
   afio_cfg_debug_ports(AFIO_DEBUG_SW_ONLY);                     //Connects PB3 and PB4 to output function.
 
-  pinMode(PB1, OUTPUT);                                         //Set PB3 as output for green LED.
-  pinMode(PB0, OUTPUT);                                         //Set PB4 as output for red LED.
+  pinMode(PB3, OUTPUT);                                         //Set PB3 as output for green LED.
+  pinMode(PB4, OUTPUT);                                         //Set PB4 as output for red LED.
   pinMode(STM32_board_LED, OUTPUT);                             //This is the LED on the STM32 board. Used for GPS indication.
   digitalWrite(STM32_board_LED, HIGH);                          //Turn the LED on the STM32 off. The LED function is inverted. Check the STM32 schematic.
 
@@ -270,6 +293,7 @@ void setup() {
   //The variable battery_voltage holds 1050 if the battery voltage is 10.5V.
   battery_voltage = (float)analogRead(4) / 112.81;
 
+
   //For calculating the pressure the 6 calibration values need to be polled from the MS5611.
   //These 2 byte values are stored in the memory location 0xA2 and up.
   for (start = 1; start <= 6; start++) {
@@ -307,6 +331,19 @@ void setup() {
 //Main program loop
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void loop() {
+  if (receiver_watchdog < 750)receiver_watchdog ++;
+  if (receiver_watchdog == 750 && start == 2) {
+    channel_1 = 1500;
+    channel_2 = 1500;
+    channel_3 = 1500;
+    channel_4 = 1500;
+    error = 8;
+    if (number_used_sats > 5) {
+      if (home_point_recorded == 1)channel_5 = 2000;
+      else channel_5 = 1750;
+    }
+    else channel_5 = 1500;
+  }
   //Some functions are only accessible when the quadcopter is off.
   if (start == 0) {
     //For compass calibration move both sticks to the top right.
@@ -332,13 +369,26 @@ void loop() {
 
   flight_mode = 1;                                                                 //In all other situations the flight mode is 1;
   if (channel_5 >= 1200 && channel_5 < 1600)flight_mode = 2;                       //If channel 6 is between 1200us and 1600us the flight mode is 2
-  if (channel_5 >= 1600 && channel_5 < 2100)flight_mode = 3;                       //If channel 6 is between 1600us and 1900us the flight mode is 3
+  if (channel_5 >= 1600 && channel_5 < 1950)flight_mode = 3;                       //If channel 6 is between 1600us and 1900us the flight mode is 3
+  if (channel_5 >= 1950 && channel_5 < 2100) {
+    if (waypoint_set == 1 && home_point_recorded == 1 && start == 2)flight_mode = 4;
+    else flight_mode = 3;
+  }
+  if (flight_mode != 4) {
+    return_to_home_step = 0;
+    return_to_home_lat_factor = 0;
+    return_to_home_lon_factor = 0;
+  }
 
+  //Run some subroutines
+  fly_waypoints();                                                                 //Jump to the fly waypoint step program.
+  return_to_home();                                                                //Jump to the return to home step program.
   flight_mode_signal();                                                            //Show the flight_mode via the green LED.
   error_signal();                                                                  //Show the error via the red LED.
   gyro_signalen();                                                                 //Read the gyro and accelerometer data.
   read_barometer();                                                                //Read and calculate the barometer data.
   read_compass();                                                                  //Read and calculate the compass data.
+  si_translate_bytes();
 
   if (gps_add_counter >= 0)gps_add_counter --;
 
@@ -391,21 +441,27 @@ void loop() {
 
   vertical_acceleration_calculations();                                            //Calculate the vertical accelration.
 
-  pid_roll_setpoint_base = channel_1;                                              //Normally channel_1 is the pid_roll_setpoint input.
-  pid_pitch_setpoint_base = channel_2;                                             //Normally channel_2 is the pid_pitch_setpoint input.
+  channel_1_base = channel_1;                                                      //Normally channel_1 is the pid_roll_setpoint input.
+  channel_2_base = channel_2;                                                      //Normally channel_2 is the pid_pitch_setpoint input.
+  gps_man_adjust_heading = angle_yaw;                                              //
   //When the heading_lock mode is activated the roll and pitch pid setpoints are heading dependent.
   //At startup the heading is registerd in the variable course_lock_heading.
-  //First the course deviation is calculated between the current heading and the course_lock_heading is calculated.
+  //First the course deviation is calculated between the current heading and the course_lock_heading.
   //Based on this deviation the pitch and roll controls are calculated so the responce is the same as on startup.
   if (heading_lock == 1) {
     heading_lock_course_deviation = course_deviation(angle_yaw, course_lock_heading);
-    pid_roll_setpoint_base = 1500 + ((float)(channel_1 - 1500) * cos(heading_lock_course_deviation * 0.017453)) + ((float)(channel_2 - 1500) * cos((heading_lock_course_deviation - 90) * 0.017453));
-    pid_pitch_setpoint_base = 1500 + ((float)(channel_2 - 1500) * cos(heading_lock_course_deviation * 0.017453)) + ((float)(channel_1 - 1500) * cos((heading_lock_course_deviation + 90) * 0.017453));
-  }
+    channel_1_base = 1500 + ((float)(channel_1 - 1500) * cos(heading_lock_course_deviation * 0.017453)) + ((float)(channel_2 - 1500) * cos((heading_lock_course_deviation - 90) * 0.017453));
+    channel_2_base = 1500 + ((float)(channel_2 - 1500) * cos(heading_lock_course_deviation * 0.017453)) + ((float)(channel_1 - 1500) * cos((heading_lock_course_deviation + 90) * 0.017453));
+    gps_man_adjust_heading = course_lock_heading;
 
+  }
   if (flight_mode >= 3 && waypoint_set == 1) {
-    pid_roll_setpoint_base += gps_roll_adjust;
-    pid_pitch_setpoint_base += gps_pitch_adjust;
+    pid_roll_setpoint_base = 1500 + gps_roll_adjust;
+    pid_pitch_setpoint_base = 1500 + gps_pitch_adjust;
+  }
+  else {
+    pid_roll_setpoint_base = channel_1_base;
+    pid_pitch_setpoint_base = channel_2_base;
   }
 
   //Because we added the GPS adjust values we need to make sure that the control limits are not exceded.
@@ -420,8 +476,7 @@ void loop() {
 
   //The battery voltage is needed for compensation.
   //A complementary filter is used to reduce noise.
-  //1410.1 = 112.81 / 0.08.
-  battery_voltage = battery_voltage * 0.92 + ((float)analogRead(4) / 1410.1);
+  battery_voltage = (battery_voltage * 0.92) + ((((float)analogRead(4) / 112.81) + battery_voltage_calibration) * 0.08);
 
   //Turn on the led if battery voltage is to low. Default setting is 10.5V
   if (battery_voltage > 6.0 && battery_voltage < low_battery_warning && error == 0)error = 1;

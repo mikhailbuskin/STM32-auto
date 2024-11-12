@@ -3,13 +3,19 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void start_stop_takeoff(void) {
   if (channel_3 < 1050 && channel_4 < 1050)start = 1;                              //For starting the motors: throttle low and yaw left (step 1).
-  if (start == 1 && channel_3 < 1050 && channel_4 > 1450) {                        //When yaw stick is back in the center position start the motors (step 2).
+  if (start == 1 && channel_4 > 1450) {                        //When yaw stick is back in the center position start the motors (step 2).
     throttle = motor_idle_speed;                                                   //Set the base throttle to the motor_idle_speed variable.
     angle_pitch = angle_pitch_acc;                                                 //Set the gyro pitch angle equal to the accelerometer pitch angle when the quadcopter is started.
     angle_roll = angle_roll_acc;                                                   //Set the gyro roll angle equal to the accelerometer roll angle when the quadcopter is started.
     ground_pressure = actual_pressure;                                             //Register the pressure at ground level for altitude calculations.
     course_lock_heading = angle_yaw;                                               //Set the current compass heading as the course lock heading.
     acc_total_vector_at_start = acc_total_vector;                                  //Register the acceleration when the quadcopter is started.
+    if(number_used_sats >= 5){
+      lat_gps_home = l_lat_gps;
+      lon_gps_home = l_lon_gps;
+      home_point_recorded = 1;
+    }
+    else home_point_recorded = 0;
     start = 2;                                                                     //Set the start variable to 2 to indicate that the quadcopter is started.
     acc_alt_integrated = 0;                                                        //Reset the integrated acceleration value.
     if (manual_takeoff_throttle > 1400 && manual_takeoff_throttle < 1600) {        //If the manual hover throttle is used and valid (between 1400us and 1600us pulse).
