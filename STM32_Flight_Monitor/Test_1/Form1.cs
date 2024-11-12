@@ -11,6 +11,7 @@ using System.Media;
 using System.IO.Ports;
 using System.Globalization;
 using System.Diagnostics;
+using Microsoft.Web.WebView2.Core;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 //Terms of use
@@ -40,7 +41,7 @@ namespace Test_1
             port = new SerialPort();
             ((Control)webBrowser1).Enabled = false;
             ((Control)webBrowser2).Enabled = false;
-            webBrowser1.Navigate("https://www.openstreetmap.org/#map=2/50.8/5.6");
+            webBrowser1.Source = new Uri("https://www.openstreetmap.org/#map=2/50.8/5.6");
             webBrowser1.Visible = true;
             webBrowser2.Visible = false;
             received_data = 2;
@@ -104,7 +105,7 @@ namespace Test_1
                 port.Close();
                 OpenClose.Text = "Open";
                 Location_update_timer.Enabled = false;
-                webBrowser1.Navigate("https://www.openstreetmap.org/#map=2/50.8/5.6");
+                webBrowser1.Source = new Uri("https://www.openstreetmap.org/#map=2/50.8/5.6");
                 webBrowser1.Visible = true;
                 webBrowser2.Visible = false;
                 label12.Visible = false;
@@ -285,14 +286,28 @@ namespace Test_1
             }
         }
 
-        private void webBrowser1_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
+        private void webBrowser1_DocumentCompleted(object sender, CoreWebView2NavigationCompletedEventArgs e)
         {
             webbrouwser_1_ready = 1;
+            // Inject JavaScript to remove the welcome popup once the page has loaded
+            string script = @"
+                let popup = document.querySelector('.welcome'); // Replace with the actual class or ID
+                if (popup) popup.style.display = 'none'; // Hide the popup
+                document.getElementById('sidebar').style.display = 'none';
+            ";
+            webBrowser1.ExecuteScriptAsync(script);
         }
 
-        private void webBrowser2_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
+        private void webBrowser2_DocumentCompleted(object sender, CoreWebView2NavigationCompletedEventArgs e)
         {
             webbrouwser_2_ready = 1;
+            // Inject JavaScript to remove the welcome popup once the page has loaded
+            string script = @"
+                let popup = document.querySelector('.welcome'); // Replace with the actual class or ID
+                if (popup) popup.style.display = 'none'; // Hide the popup
+                document.getElementById('sidebar').style.display = 'none';
+            ";
+            webBrowser2.ExecuteScriptAsync(script);
         }
 
         private void Location_update_timer_Tick(object sender, EventArgs e)
@@ -330,7 +345,7 @@ namespace Test_1
                     webBrowser2.Visible = true;
                     webBrowser1.Visible = false;
                     webbrouwser_1_ready = 0;
-                    webBrowser1.Navigate(location_address);
+                    webBrowser1.Source = new Uri(location_address);
                     webbrouwser_active = 0;
                 }
                 else if (webbrouwser_active == 0 && webbrouwser_1_ready == 1)
@@ -338,7 +353,7 @@ namespace Test_1
                     webBrowser1.Visible = true;
                     webBrowser2.Visible = false;
                     webbrouwser_2_ready = 0;
-                    webBrowser2.Navigate(location_address);
+                    webBrowser2.Source = new Uri(location_address);
                     webbrouwser_active = 1;
                 }
             }

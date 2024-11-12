@@ -1,4 +1,6 @@
-﻿namespace Test_1
+﻿using System.Windows.Forms;
+
+namespace Test_1
 {
     partial class Scherm_1
     {
@@ -42,11 +44,11 @@
             this.label6 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.timer2 = new System.Windows.Forms.Timer(this.components);
-            this.webBrowser1 = new System.Windows.Forms.WebBrowser();
+            this.webBrowser1 = new Microsoft.Web.WebView2.WinForms.WebView2();
             this.panel1 = new System.Windows.Forms.Panel();
             this.Location_update_timer = new System.Windows.Forms.Timer(this.components);
             this.rx_timer_blink = new System.Windows.Forms.Timer(this.components);
-            this.webBrowser2 = new System.Windows.Forms.WebBrowser();
+            this.webBrowser2 = new Microsoft.Web.WebView2.WinForms.WebView2();
             this.label8 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
             this.panel3 = new System.Windows.Forms.Panel();
@@ -236,10 +238,10 @@
             this.webBrowser1.Location = new System.Drawing.Point(298, 10);
             this.webBrowser1.MinimumSize = new System.Drawing.Size(20, 20);
             this.webBrowser1.Name = "webBrowser1";
-            this.webBrowser1.ScrollBarsEnabled = false;
+            //this.webBrowser1.ScrollBarsEnabled = false;
             this.webBrowser1.Size = new System.Drawing.Size(693, 565);
             this.webBrowser1.TabIndex = 21;
-            this.webBrowser1.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this.webBrowser1_DocumentCompleted);
+            this.webBrowser1.NavigationCompleted += new System.EventHandler<Microsoft.Web.WebView2.Core.CoreWebView2NavigationCompletedEventArgs>(this.webBrowser1_DocumentCompleted);
             // 
             // panel1
             // 
@@ -266,10 +268,10 @@
             this.webBrowser2.Location = new System.Drawing.Point(298, 10);
             this.webBrowser2.MinimumSize = new System.Drawing.Size(20, 20);
             this.webBrowser2.Name = "webBrowser2";
-            this.webBrowser2.ScrollBarsEnabled = false;
+            //this.webBrowser2.ScrollBarsEnabled = false;
             this.webBrowser2.Size = new System.Drawing.Size(693, 565);
             this.webBrowser2.TabIndex = 23;
-            this.webBrowser2.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this.webBrowser2_DocumentCompleted);
+            this.webBrowser2.NavigationCompleted += new System.EventHandler<Microsoft.Web.WebView2.Core.CoreWebView2NavigationCompletedEventArgs>(this.webBrowser2_DocumentCompleted);
             // 
             // label8
             // 
@@ -1012,11 +1014,11 @@
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Timer timer2;
-        private System.Windows.Forms.WebBrowser webBrowser1;
+        private Microsoft.Web.WebView2.WinForms.WebView2 webBrowser1;
         public System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Timer Location_update_timer;
         private System.Windows.Forms.Timer rx_timer_blink;
-        private System.Windows.Forms.WebBrowser webBrowser2;
+        private Microsoft.Web.WebView2.WinForms.WebView2 webBrowser2;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Panel panel3;
