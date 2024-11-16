@@ -34,7 +34,7 @@ void calibrate_gyro(void) {
   if (cal_int != 2000) {
     //Let's take multiple gyro data samples so we can determine the average gyro offset (calibration).
     for (cal_int = 0; cal_int < 2000 ; cal_int ++) {                                  //Take 2000 readings for calibration.
-      if (cal_int % 25 == 0) digitalWrite(PB4, !digitalRead(PB4));                    //Change the led status every 125 readings to indicate calibration.
+      if (cal_int % 25 == 0) digitalWrite(PA7, !digitalRead(PA7));                    //Change the led status every 125 readings to indicate calibration.
       gyro_signalen();                                                                //Read the gyro output.
       gyro_roll_cal += gyro_roll;                                                     //Ad roll value to gyro_roll_cal.
       gyro_pitch_cal += gyro_pitch;                                                   //Ad pitch value to gyro_pitch_cal.

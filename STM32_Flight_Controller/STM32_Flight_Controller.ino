@@ -207,7 +207,7 @@ void setup() {
   afio_cfg_debug_ports(AFIO_DEBUG_SW_ONLY);                     //Connects PB3 and PB4 to output function.
 
   pinMode(PB1, OUTPUT);                                         //Set PB3 as output for green LED.
-  pinMode(PB4, OUTPUT);                                         //Set PB4 as output for red LED.
+  pinMode(PA7, OUTPUT);                                         //Set PB4 as output for red LED.
   pinMode(STM32_board_LED, OUTPUT);                             //This is the LED on the STM32 board. Used for GPS indication.
   digitalWrite(STM32_board_LED, HIGH);                          //Turn the LED on the STM32 off. The LED function is inverted. Check the STM32 schematic.
 
@@ -265,7 +265,7 @@ void setup() {
   //Create a 5 second delay before calibration.
   for (count_var = 0; count_var < 1250; count_var++) {          //1250 loops of 4 microseconds = 5 seconds.
     if (count_var % 125 == 0) {                                 //Every 125 loops (500ms).
-      digitalWrite(PB4, !digitalRead(PB4));                     //Change the led status.
+      digitalWrite(PA7, !digitalRead(PA7));                     //Change the led status.
     }
     delay(4);                                                   //Simulate a 250Hz refresch rate as like the main loop.
   }
