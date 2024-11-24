@@ -57,7 +57,7 @@ int16_t motor_idle_speed = 1100;           //Enter the minimum throttle pulse of
 
 uint8_t gyro_address = 0x68;               //The I2C address of the MPU-6050 is 0x68 in hexadecimal form.
 uint8_t MS5611_address = 0x77;             //The I2C address of the MS5611 barometer is 0x77 in hexadecimal form.
-uint8_t compass_address = 0x1E;            //The I2C address of the HMC5883L is 0x1E in hexadecimal form.
+uint8_t compass_address = 0x0D;            //The I2C address of the HMC5883L is 0x1E in hexadecimal form.
 
 float battery_voltage_calibration = 0.0;   //Battery voltage offset calibration.
 float low_battery_warning = 10.5;          //Set the battery warning at 10.5V (default = 10.5V).

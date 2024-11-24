@@ -9,19 +9,22 @@ void check_compass(void) {
     Serial.println("Compass not responding");
   }
   else {
-    HWire.beginTransmission(compass_address); //open communication with HMC5883
-    HWire.write(0x00);
-    HWire.write(0x10);
-    HWire.write(0x60);
-    HWire.write(0x00);
-    HWire.endTransmission();
-    delay(250);
+    // Initialize QMC5883L
     HWire.beginTransmission(compass_address);
-    HWire.write(0x00);
-    HWire.write(0x11);
-    HWire.write(0x60);
-    HWire.write(0x01);
+    HWire.write(0x0B); // Control register 1
+    HWire.write(0x01); // Set to continuous measurement mode, output rate = 10Hz, range = 2G
     HWire.endTransmission();
+
+    HWire.beginTransmission(compass_address);
+    HWire.write(0x09); // Set range register
+    HWire.write(0x1D); // Full-scale range = ±8 Gauss
+    HWire.endTransmission();
+
+    HWire.beginTransmission(compass_address);
+    HWire.write(0x0A); // Set oversampling register
+    HWire.write(0x00); // Oversampling rate = 512
+    HWire.endTransmission();
+
     Serial.print("Positive bias test: ");
     delay(10);
     read_data();
@@ -88,9 +91,14 @@ void check_compass(void) {
 }
 
 void read_data() {
-  HWire.requestFrom(compass_address, 6);
-  compass_x = (HWire.read() << 8) | HWire.read();
-  compass_z = (HWire.read() << 8) | HWire.read();
-  compass_y = (HWire.read() << 8) | HWire.read();
-}
+  HWire.beginTransmission(compass_address);
+  HWire.write(0x00); // Data output register starting address
+  HWire.endTransmission();
 
+  HWire.requestFrom(compass_address, 6); // Request 6 bytes (X, Y, Z)
+  if (HWire.available() == 6) {
+    compass_x = (HWire.read() | (HWire.read() << 8)); // X-axis
+    compass_y = (HWire.read() | (HWire.read() << 8)); // Y-axis
+    compass_z = (HWire.read() | (HWire.read() << 8)); // Z-axis
+  }
+}
