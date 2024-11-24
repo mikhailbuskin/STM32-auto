@@ -57,24 +57,28 @@ namespace Test_1
 
         private void DataReceivedHandler(object sender, EventArgs e)
         {
-            if (received_data == 0) received_data = 1;
-            int nextByte = port.ReadByte();
-            if (nextByte >= 0) receive_buffer[receive_buffer_counter] = (byte)nextByte;                 //Load them in the received_buffer array.
-                                                                                                        //Search for the start signature in the received data stream.
-            if (receive_byte_previous == 'J' && receive_buffer[receive_buffer_counter] == 'B')
+            var bytesToRead = port.BytesToRead;
+            for (var i = 0; i < bytesToRead; i++)
             {
-                receive_buffer_counter = 0;                                           //Reset the receive_buffer_counter counter if the start signature if found.
-                receive_start_detect++;                                              //Increment the receive_start_detect to check for a full data stream reception.
-                if (receive_start_detect >= 2)
+                if (received_data == 0) received_data = 1;
+                int nextByte = port.ReadByte();
+                if (nextByte >= 0) receive_buffer[receive_buffer_counter] = (byte)nextByte;                 //Load them in the received_buffer array.
+                                                                                                            //Search for the start signature in the received data stream.
+                if (receive_byte_previous == 'J' && receive_buffer[receive_buffer_counter] == 'B')
                 {
-                    get_data();
+                    receive_buffer_counter = 0;                                           //Reset the receive_buffer_counter counter if the start signature if found.
+                    receive_start_detect++;                                              //Increment the receive_start_detect to check for a full data stream reception.
+                    if (receive_start_detect >= 2)
+                    {
+                        get_data();
+                    }
                 }
-            }
-            else
-            {                                                                   //If there is no start signature detected.
-                receive_byte_previous = receive_buffer[receive_buffer_counter];       //Safe the current received byte for the next loop.
-                receive_buffer_counter++;                                            //Increment the receive_buffer_counter variable.
-                if (receive_buffer_counter > 48) receive_buffer_counter = 0;            //Reset the receive_buffer_counter variable when it becomes larger than 38.
+                else
+                {                                                                   //If there is no start signature detected.
+                    receive_byte_previous = receive_buffer[receive_buffer_counter];       //Safe the current received byte for the next loop.
+                    receive_buffer_counter++;                                            //Increment the receive_buffer_counter variable.
+                    if (receive_buffer_counter > 48) receive_buffer_counter = 0;            //Reset the receive_buffer_counter variable when it becomes larger than 38.
+                }
             }
         }
 
