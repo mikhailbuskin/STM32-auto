@@ -50,7 +50,7 @@ int pid_max_altitude = 400;                //Maximum output of the PID-controlle
 float gps_p_gain = 2.7;                    //Gain setting for the GPS P-controller (default = 2.7).
 float gps_d_gain = 6.5;                    //Gain setting for the GPS D-controller (default = 6.5).
 
-float declination = 0.0;                   //Set the declination between the magnetic and geographic north.
+float declination = 11.24;                   //Set the declination between the magnetic and geographic north.
 
 int16_t manual_takeoff_throttle = 0;    //Enter the manual hover point when auto take-off detection is not desired (between 1400 and 1600).
 int16_t motor_idle_speed = 1100;           //Enter the minimum throttle pulse of the motors when they idle (between 1000 and 1200). 1170 for DJI

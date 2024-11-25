@@ -28,14 +28,21 @@ void gps_setup(void) {
 void read_gps(void) {
   while (Serial2.available() && new_line_found == 0) {                                                   //Stay in this loop as long as there is serial information from the GPS available.
     char read_serial_byte = Serial2.read();                                                              //Load a new serial byte in the read_serial_byte variable.
+    // beginning of the string
     if (read_serial_byte == '$') {                                                                       //If the new byte equals a $ character.
+      // cleanup the buffer
       for (message_counter = 0; message_counter <= 99; message_counter ++) {                             //Clear the old data from the incomming buffer array.
         incomming_message[message_counter] = '-';                                                        //Write a - at every position.
       }
       message_counter = 0;                                                                               //Reset the message_counter variable because we want to start writing at the begin of the array.
     }
-    else if (message_counter <= 99)message_counter ++;                                                   //If the received byte does not equal a $ character, increase the message_counter variable.
+    // keep reading
+    else {
+      if (message_counter <= 99) message_counter ++;                                                   //If the received byte does not equal a $ character, increase the message_counter variable.
+    }
+    // put read char to buffer
     incomming_message[message_counter] = read_serial_byte;                                               //Write the new received byte to the new position in the incomming_message array.
+    // found end of the string, we out
     if (read_serial_byte == '*') new_line_found = 1;                                                     //Every NMEA line end with a *. If this character is detected the new_line_found variable is set to 1.
   }
 
@@ -82,7 +89,10 @@ void read_gps(void) {
       else latitude_north = 0;                                                                           //When flying south of the equator the latitude_north variable will be set to 0.
 
       if (incomming_message[42] == 'E')longiude_east = 1;                                                //When flying east of the prime meridian the longiude_east variable will be set to 1.
-      else longiude_east = 0;                                                                            //When flying west of the prime meridian the longiude_east variable will be set to 0.
+      else {
+        longiude_east = 0;                                                                            //When flying west of the prime meridian the longiude_east variable will be set to 0.
+        lon_gps_actual = -1 * lon_gps_actual;
+      }
 
       number_used_sats = ((int)incomming_message[46] - 48) * (long)10;                                   //Filter the number of satillites from the GGA line.
       number_used_sats += (int)incomming_message[47] - 48;                                               //Filter the number of satillites from the GGA line.
