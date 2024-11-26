@@ -1,19 +1,14 @@
-
 void read_compass() {
   HWire.beginTransmission(compass_address);                     //Start communication with the compass.
   HWire.write(0x03);                                            //We want to start reading at the hexadecimal location 0x03.
   HWire.endTransmission();                                      //End the transmission with the gyro.
 
-  HWire.beginTransmission(compass_address);
-  HWire.write(0x00); // Data output register starting address
-  HWire.endTransmission();
-
-  HWire.requestFrom(compass_address, 6); // Request 6 bytes (X, Y, Z)
-  if (HWire.available() == 6) {
-    compass_x = (HWire.read() | (HWire.read() << 8)); // X-axis
-    compass_y = (HWire.read() | (HWire.read() << 8)); // Y-axis
-    compass_z = (HWire.read() | (HWire.read() << 8)); // Z-axis
-  }
+  HWire.requestFrom(compass_address, 6);                        //Request 6 bytes from the compass.
+  compass_y = HWire.read() << 8 | HWire.read();                 //Add the low and high byte to the compass_y variable.
+  compass_y *= -1;                                              //Invert the direction of the axis.
+  compass_z = HWire.read() << 8 | HWire.read();                 //Add the low and high byte to the compass_z variable.;
+  compass_x = HWire.read() << 8 | HWire.read();                 //Add the low and high byte to the compass_x variable.;
+  compass_x *= -1;                                              //Invert the direction of the axis.
 
   //Before the compass can give accurate measurements it needs to be calibrated. At startup the compass_offset and compass_scale
   //variables are calculated. The following part will adjust the raw compas values so they can be used for the calculation of the heading.
@@ -42,26 +37,17 @@ void read_compass() {
 
 //At startup the registers of the compass need to be set. After that the calibration offset and scale values are calculated.
 void setup_compass() {
-  // Initialize QMC5883L
-  HWire.beginTransmission(compass_address);
-  HWire.write(0x0B); // Control register 1
-  HWire.write(0x01); // Set to continuous measurement mode, output rate = 10Hz, range = 2G
-  HWire.endTransmission();
+  HWire.beginTransmission(compass_address);                     //Start communication with the compass.
+  HWire.write(0x00);                                            //We want to write to the Configuration Register A (00 hex).
+  HWire.write(0x78);                                            //Set the Configuration Regiser A bits as 01111000 to set sample rate (average of 8 at 75Hz).
+  HWire.write(0x20);                                            //Set the Configuration Regiser B bits as 00100000 to set the gain at +/-1.3Ga.
+  HWire.write(0x00);                                            //Set the Mode Regiser bits as 00000000 to set Continues-Measurement Mode.
+  HWire.endTransmission();                                      //End the transmission with the compass.
 
-  HWire.beginTransmission(compass_address);
-  HWire.write(0x09); // Set range register
-  HWire.write(0x1D); // Full-scale range = ±8 Gauss
-  HWire.endTransmission();
-
-  HWire.beginTransmission(compass_address);
-  HWire.write(0x0A); // Set oversampling register
-  HWire.write(0x00); // Oversampling rate = 512
-  HWire.endTransmission();
-
-  //Read the calibration values from the EEPROM.
+//Read the calibration values from the EEPROM.
   for (error = 0; error < 6; error ++)compass_cal_values[error] = EEPROM.read(0x10 + error);
   error = 0;
-  //Calculate the alibration offset and scale values
+//Calculate the alibration offset and scale values
   compass_scale_y = ((float)compass_cal_values[1] - compass_cal_values[0]) / (compass_cal_values[3] - compass_cal_values[2]);
   compass_scale_z = ((float)compass_cal_values[1] - compass_cal_values[0]) / (compass_cal_values[5] - compass_cal_values[4]);
 
@@ -83,4 +69,3 @@ float course_deviation(float course_b, float course_c) {
   }
   return course_a;
 }
-
