@@ -37,8 +37,8 @@ void read_gps(void) {
       message_counter = 0;                                                                               //Reset the message_counter variable because we want to start writing at the begin of the array.
     }
     // keep reading
-    else {
-      if (message_counter <= 99) message_counter ++;                                                   //If the received byte does not equal a $ character, increase the message_counter variable.
+    else if (message_counter <= 99) {
+      message_counter ++;                                                   //If the received byte does not equal a $ character, increase the message_counter variable.
     }
     // put read char to buffer
     incomming_message[message_counter] = read_serial_byte;                                               //Write the new received byte to the new position in the incomming_message array.
@@ -91,7 +91,7 @@ void read_gps(void) {
       if (incomming_message[42] == 'E')longiude_east = 1;                                                //When flying east of the prime meridian the longiude_east variable will be set to 1.
       else {
         longiude_east = 0;                                                                            //When flying west of the prime meridian the longiude_east variable will be set to 0.
-        lon_gps_actual = -1 * lon_gps_actual;
+        //lon_gps_actual = -1 * lon_gps_actual;
       }
 
       number_used_sats = ((int)incomming_message[46] - 48) * (long)10;                                   //Filter the number of satillites from the GGA line.

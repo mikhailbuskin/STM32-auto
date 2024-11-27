@@ -44,12 +44,27 @@ void setup_compass() {
   HWire.write(0x00);                                            //Set the Mode Regiser bits as 00000000 to set Continues-Measurement Mode.
   HWire.endTransmission();                                      //End the transmission with the compass.
 
-//Read the calibration values from the EEPROM.
-  for (error = 0; error < 6; error ++)compass_cal_values[error] = EEPROM.read(0x10 + error);
-  error = 0;
-//Calculate the alibration offset and scale values
-  compass_scale_y = ((float)compass_cal_values[1] - compass_cal_values[0]) / (compass_cal_values[3] - compass_cal_values[2]);
-  compass_scale_z = ((float)compass_cal_values[1] - compass_cal_values[0]) / (compass_cal_values[5] - compass_cal_values[4]);
+  //Read the calibration values from the EEPROM.
+  for (int i = 0; i < 6; i++)compass_cal_values[i] = EEPROM.read(0x10 + i);
+
+  /*
+  values we got in the field
+  -773 248 -484 506 -484 499
+  */
+  compass_cal_values[0] = -773;
+  compass_cal_values[1] = 248; // X 1,021 range
+  compass_cal_values[2] = -484;
+  compass_cal_values[3] = 506; // Y 990
+  compass_cal_values[4] = -484;
+  compass_cal_values[5] = 499; // Z 983
+
+  
+  // compass_offset_x (248 - (-773))/2 - (248) = (1021 / 2) - 248 = 510.5 - 248 = 262.5 
+  // which is kinda same thing as adding and deviding by 2.
+
+  //Calculate the calibration offset and scale value
+  compass_scale_y = ((float)compass_cal_values[1] - compass_cal_values[0]) / (compass_cal_values[3] - compass_cal_values[2]); // 1021 / 990  = 1.031313131313131
+  compass_scale_z = ((float)compass_cal_values[1] - compass_cal_values[0]) / (compass_cal_values[5] - compass_cal_values[4]); // 1021 / 983  = 1.038657171922686
 
   compass_offset_x = (compass_cal_values[1] - compass_cal_values[0]) / 2 - compass_cal_values[1];
   compass_offset_y = (((float)compass_cal_values[3] - compass_cal_values[2]) / 2 - compass_cal_values[3]) * compass_scale_y;

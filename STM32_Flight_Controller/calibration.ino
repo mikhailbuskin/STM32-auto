@@ -10,31 +10,29 @@ void calibrate_compass(void) {
     delayMicroseconds(3700);                                                 //Simulate a 250Hz program loop.
     read_compass();                                                          //Read the raw compass values.
     //In the following lines the maximum and minimum compass values are detected and stored.
-    if (compass_x < compass_cal_values[0])compass_cal_values[0] = compass_x;
-    if (compass_x > compass_cal_values[1])compass_cal_values[1] = compass_x;
-    if (compass_y < compass_cal_values[2])compass_cal_values[2] = compass_y;
-    if (compass_y > compass_cal_values[3])compass_cal_values[3] = compass_y;
-    if (compass_z < compass_cal_values[4])compass_cal_values[4] = compass_z;
-    if (compass_z > compass_cal_values[5])compass_cal_values[5] = compass_z;
+    if (compass_x < compass_cal_values[0])compass_cal_values[0] = compass_x; // min
+    if (compass_x > compass_cal_values[1])compass_cal_values[1] = compass_x; // max
+    if (compass_y < compass_cal_values[2])compass_cal_values[2] = compass_y; // min
+    if (compass_y > compass_cal_values[3])compass_cal_values[3] = compass_y; // max
+    if (compass_z < compass_cal_values[4])compass_cal_values[4] = compass_z; // min
+    if (compass_z > compass_cal_values[5])compass_cal_values[5] = compass_z; // max
   }
   compass_calibration_on = 0;                                                //Reset the compass_calibration_on variable.
 
   //The maximum and minimum values are needed for the next startup and are stored
-  for (error = 0; error < 6; error ++) EEPROM.write(0x10 + error, compass_cal_values[error]);
+  for (int i = 0; i < 6; i ++) EEPROM.write(0x10 + i, compass_cal_values[i]);
 
   setup_compass();                                                           //Initiallize the compass and set the correct registers.
   read_compass();                                                            //Read and calculate the compass data.
   angle_yaw = actual_compass_heading;                                        //Set the initial compass heading.
 
   red_led(LOW);
-  for (error = 0; error < 15; error ++) {
+  for (int i = 0; i < 15; i ++) {
     green_led(HIGH);
     delay(50);
     green_led(LOW);
     delay(50);
   }
-
-  error = 0;
 
   loop_timer = micros();                                                     //Set the timer for the next loop.
 }

@@ -196,6 +196,8 @@ uint16_t setting_click_counter;
 uint8_t previous_channel_6;
 float adjustable_setting_1, adjustable_setting_2, adjustable_setting_3;
 
+int counter = 0;
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Setup routine
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -221,8 +223,8 @@ void setup() {
   EEPROM.PageBase1 = 0x801F800;
   EEPROM.PageSize  = 0x400;
 
-  Serial.begin(57600);                                        //Set the serial output to 57600 kbps. (for debugging only)
-  delay(250);                                                 //Give the serial port some time to start to prevent data loss.
+  // Serial.begin(57600);                                        //Set the serial output to 57600 kbps. (for debugging only)
+  // delay(250);                                                 //Give the serial port some time to start to prevent data loss.
 
   timer_setup();                                                //Setup the timers for the receiver inputs and ESC's output.
   delay(50);                                                    //Give the timers some time to start.
@@ -331,6 +333,7 @@ void setup() {
 //Main program loop
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void loop() {
+  counter++;
   if (receiver_watchdog < 750)receiver_watchdog ++;
   if (receiver_watchdog == 750 && start == 2) {
     channel_1 = 1500;
@@ -417,11 +420,26 @@ void loop() {
   //0.000001066 = 0.0000611 * (3.142(PI) / 180degr) The Arduino sin function is in radians and not degrees.
   angle_pitch -= angle_roll * sin((float)gyro_yaw * 0.000001066);                  //If the IMU has yawed transfer the roll angle to the pitch angel.
   angle_roll += angle_pitch * sin((float)gyro_yaw * 0.000001066);                  //If the IMU has yawed transfer the pitch angle to the roll angel.
+  
+  // if((counter%100) == 0){
+  //   Serial.print("Gyro: " + String(angle_yaw) + " Compass: " + String(actual_compass_heading));
+  // }
 
   angle_yaw -= course_deviation(angle_yaw, actual_compass_heading) / 1200.0;       //Calculate the difference between the gyro and compass heading and make a small correction.
   if (angle_yaw < 0) angle_yaw += 360;                                             //If the compass heading becomes smaller then 0, 360 is added to keep it in the 0 till 360 degrees range.
   else if (angle_yaw >= 360) angle_yaw -= 360;                                     //If the compass heading becomes larger then 360, 360 is subtracted to keep it in the 0 till 360 degrees range.
-  Serial.println(actual_compass_heading);
+
+  // if((counter%100) == 0){
+  //   Serial.println(" Result: " + String(angle_yaw));
+  // }
+
+  // if ((counter%2000) == 50) {
+  //   Serial.print("CALIB:");
+  //   for (int i=0; i< 6; i++) {
+  //     Serial.print(" " + (String)compass_cal_values[i]);
+  //   }
+  //   Serial.println("");
+  // }
 
   //Accelerometer angle calculations
   acc_total_vector = sqrt((acc_x * acc_x) + (acc_y * acc_y) + (acc_z * acc_z));    //Calculate the total accelerometer vector.
