@@ -66,9 +66,9 @@ void setup_compass() {
   compass_scale_y = ((float)compass_cal_values[1] - compass_cal_values[0]) / (compass_cal_values[3] - compass_cal_values[2]); // 1021 / 990  = 1.031313131313131
   compass_scale_z = ((float)compass_cal_values[1] - compass_cal_values[0]) / (compass_cal_values[5] - compass_cal_values[4]); // 1021 / 983  = 1.038657171922686
 
-  compass_offset_x = (compass_cal_values[1] - compass_cal_values[0]) / 2 - compass_cal_values[1];
-  compass_offset_y = (((float)compass_cal_values[3] - compass_cal_values[2]) / 2 - compass_cal_values[3]) * compass_scale_y;
-  compass_offset_z = (((float)compass_cal_values[5] - compass_cal_values[4]) / 2 - compass_cal_values[5]) * compass_scale_z;
+  compass_offset_x = ((float)compass_cal_values[1] - (float)compass_cal_values[0]) / 2 - compass_cal_values[1];
+  compass_offset_y = ((float)compass_cal_values[3] - (float)compass_cal_values[2]) / 2 - compass_cal_values[3];
+  compass_offset_z = ((float)compass_cal_values[5] - (float)compass_cal_values[4]) / 2 - compass_cal_values[5];
 }
 
 
