@@ -57,7 +57,8 @@ int16_t motor_idle_speed = 1100;           //Enter the minimum throttle pulse of
 
 uint8_t gyro_address = 0x68;               //The I2C address of the MPU-6050 is 0x68 in hexadecimal form.
 uint8_t MS5611_address = 0x77;             //The I2C address of the MS5611 barometer is 0x77 in hexadecimal form.
-uint8_t compass_address = 0x1E;            //The I2C address of the HMC5883L is 0x1E in hexadecimal form.
+//uint8_t compass_address = 0x1E;            //The I2C address of the HMC5883L is 0x1E in hexadecimal form.
+uint8_t compass_address = 0x0D;            //The I2C address of the HMC5883L is 0x1E in hexadecimal form.
 
 float battery_voltage_calibration = 0.0;   //Battery voltage offset calibration.
 float low_battery_warning = 10.5;          //Set the battery warning at 10.5V (default = 10.5V).
@@ -422,16 +423,12 @@ void loop() {
   angle_roll += angle_pitch * sin((float)gyro_yaw * 0.000001066);                  //If the IMU has yawed transfer the pitch angle to the roll angel.
   
   // if((counter%100) == 0){
-  //   Serial.print("Gyro: " + String(angle_yaw) + " Compass: " + String(actual_compass_heading));
+  //   Serial.println("    Result: " + String(angle_yaw) + " Compass: " + String(actual_compass_heading));
   // }
 
   angle_yaw -= course_deviation(angle_yaw, actual_compass_heading) / 1200.0;       //Calculate the difference between the gyro and compass heading and make a small correction.
   if (angle_yaw < 0) angle_yaw += 360;                                             //If the compass heading becomes smaller then 0, 360 is added to keep it in the 0 till 360 degrees range.
   else if (angle_yaw >= 360) angle_yaw -= 360;                                     //If the compass heading becomes larger then 360, 360 is subtracted to keep it in the 0 till 360 degrees range.
-
-  // if((counter%100) == 0){
-  //   Serial.println(" Result: " + String(angle_yaw));
-  // }
 
   // if ((counter%2000) == 50) {
   //   Serial.print("CALIB:");
