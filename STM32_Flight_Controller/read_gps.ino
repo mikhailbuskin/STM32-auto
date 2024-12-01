@@ -83,15 +83,14 @@ void read_gps(void) {
       lon_gps_actual += ((int)incomming_message[30] - 48) * (long)1000000000;                            //Add the degrees multiplied by 10.
       lon_gps_actual += ((int)incomming_message[31] - 48) * (long)100000000;                             //Add the degrees multiplied by 10.
       lon_gps_actual += ((int)incomming_message[32] - 48) * (long)10000000;                              //Add the degrees multiplied by 10.
-      lon_gps_actual /= 10;                                                                              //Divide everything by 10.
+      lon_gps_actual /= -10;                                                                              //Divide everything by 10.
 
       if (incomming_message[28] == 'N')latitude_north = 1;                                               //When flying north of the equator the latitude_north variable will be set to 1.
       else latitude_north = 0;                                                                           //When flying south of the equator the latitude_north variable will be set to 0.
 
-      if (incomming_message[42] == 'E')longiude_east = 1;                                                //When flying east of the prime meridian the longiude_east variable will be set to 1.
+      if (incomming_message[42] == 'E')longiude_east = 0;                                                //When flying east of the prime meridian the longiude_east variable will be set to 1.
       else {
-        longiude_east = 0;                                                                            //When flying west of the prime meridian the longiude_east variable will be set to 0.
-        //lon_gps_actual = -1 * lon_gps_actual;
+        longiude_east = 1;                                                                            //When flying west of the prime meridian the longiude_east variable will be set to 0.
       }
 
       number_used_sats = ((int)incomming_message[46] - 48) * (long)10;                                   //Filter the number of satillites from the GGA line.
