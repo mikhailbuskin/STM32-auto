@@ -1,0 +1,9 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+}
+.my-panel {
+  padding: 10px;
+  background-color: white;
+}

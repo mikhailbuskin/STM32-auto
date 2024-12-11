@@ -1,0 +1,23 @@
+.leaflet-marker-icon--label {
+  position: absolute;
+  width: 21px;
+  height: 21px;
+  background-color: black;
+  color:white;
+  border-radius: 50%;
+  line-height: 21px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 15px;
+  top: 3px;
+  left: 2px;
+}
+
+.leaflet-marker-icon--label__done {
+  background-color: #8eff5a;
+  color: black;
+}
+
+.leaflet-marker-icon--label__icon {
+  font-size: 20px;
+}

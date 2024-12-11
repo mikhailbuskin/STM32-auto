@@ -1,0 +1,34 @@
+<html>
+    <head>
+        <title>WebSocket</title>
+        <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+        <!--add mobx-->
+        <script src="https://unpkg.com/mobx/lib/mobx.umd.js"></script>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+        <!--bootstrap-->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="style.css" />
+    </head>
+    <body>
+        <div id="map" style="width: 100%; height: 100%;"></div>
+        <div class="leaflet-touch">
+            <div class="leaflet-bottom leaflet-left">
+                <div id="app" class="leaflet-bar leaflet-control my-panel">
+                    <div>No Drone Found</div>
+                </div>
+            </div>
+            <div class="leaflet-bottom leaflet-right">
+                <div id="app2" class="leaflet-bar leaflet-control my-panel">
+                    <button class="btn btn-primary btn-sm" onclick="startWaypoints()" style="width: 60px;margin-bottom: 8px;">Start</button><br/>
+                    <button class="btn btn-light btn-sm" onclick="stopWaypoints()" style="width: 60px;margin-bottom: 8px;">Stop</button><br/>
+                    <button class="btn btn-danger btn-sm" onclick="clearWaypoints()" style="width: 60px;">Clear</button><br/>
+                </div>
+            </div>
+        </div>
+        <link rel="stylesheet" href="icon.css" />
+        <script src="icon.js"></script>
+
+        <script src="map.js"></script>
+        <script src="data.js"></script>
+    </body>
+</html>

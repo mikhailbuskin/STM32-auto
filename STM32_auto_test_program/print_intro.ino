@@ -2,7 +2,7 @@ void print_intro(void) {
   Serial.println(F(""));
   Serial.println(F(""));
   Serial.println(F("==================================================="));
-  Serial.println(F("          YMFC-32 quadcopter setup tool"));
+  Serial.println(F("          STM32 quadcopter setup tool"));
   Serial.println(F("==================================================="));
   Serial.println(F("a = Read the receiver input pulses"));
   Serial.println(F("b = I2C scanner to detect any I2C sensors attached"));
@@ -20,8 +20,6 @@ void print_intro(void) {
   Serial.println(F("3 = Check motor 3 (rear left, counter clockwise direction)"));
   Serial.println(F("4 = Check motor 4 (front left, clockwise direction)"));
   Serial.println(F("5 = Check all motors"));
-  Serial.println(F("==================================================="));
-  Serial.println(F("For support and questions: www.brokking.net"));
   Serial.println(F(""));
   if (!disable_throttle) {                                      //If the throttle is not disabled.
     Serial.println(F("==================================================="));
